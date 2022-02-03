@@ -26,6 +26,10 @@ const startTimer = () => {
     let { total } = timer.remainingTime;
     const endTime = Date.parse(new Date()) + total * 1000;
 
+    mainButton.dataset.action = 'stop';
+    mainButton.textContent = 'stop';
+    mainButton.classList.add('active');
+
     interval = setInterval(() => {
         timer.remainingTime = getRemainingTime(endTime);
         updateClock();
@@ -35,6 +39,14 @@ const startTimer = () => {
             clearInterval(interval);
         }
     }, 1000);
+}
+
+const stopTimer = () => {
+    clearInterval(interval);
+
+    mainButton.dataset.action = 'start';
+    mainButton.textContent = 'start';
+    mainButton.classList.remove('active');
 }
 
 const updateClock = () => {
@@ -49,9 +61,7 @@ const updateClock = () => {
     sec.textContent = seconds;
 }
 
-const clickHandler = (e) => {
-    console.log(e.target.dataset.mode);
-    const { mode } = e.target.dataset;
+const switchMode = (mode) => {
     timer.mode = mode;
     timer.remainingTime = {
         total: timer[mode] * 60,
@@ -59,13 +69,23 @@ const clickHandler = (e) => {
         seconds: 0
     };
 
-    document.querySelectorAll('button[data-mode]').forEach(e => e.classList.remove('actice'));
+    document.querySelectorAll('button[data-mode]').forEach(e => e.classList.remove('active'));
 
     document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
 
     document.body.style.backgroundColor = `var(--${mode})`;
 
     updateClock();
+}
+
+const clickHandler = (e) => {
+    /* console.log(e.target.dataset.mode); */
+    const { mode } = e.target.dataset;
+
+    if (!mode) return;
+
+    switchMode(mode);
+    stopTimer();
 }
 
 const pomodoroButton = document.querySelector('#js-pomodoro');
@@ -82,5 +102,11 @@ mainButton.addEventListener('click', () => {
     const { action } = mainButton.dataset;
     if (action === 'start') {
         startTimer();
+    } else {
+        stopTimer();
     }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    switchMode('pomodoro');
 });
