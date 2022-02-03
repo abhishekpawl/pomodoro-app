@@ -4,7 +4,8 @@ const timer = {
     pomodoro: 25,
     shortBreak: 5,
     longBreak: 15,
-    longBreakInterval: 4
+    longBreakInterval: 4,
+    sessions: 0
 };
 
 const getRemainingTime = (endTime) => {
@@ -26,6 +27,10 @@ const startTimer = () => {
     let { total } = timer.remainingTime;
     const endTime = Date.parse(new Date()) + total * 1000;
 
+    if (timer.mode === 'pomodoro') {
+        timer.sessions++;
+    }
+
     mainButton.dataset.action = 'stop';
     mainButton.textContent = 'stop';
     mainButton.classList.add('active');
@@ -37,6 +42,20 @@ const startTimer = () => {
         total = timer.remainingTime.total;
         if (total <= 0) {
             clearInterval(interval);
+
+            switch (timer.mode) {
+                case pomodoro:
+                    if (timer.sessions % timer.longBreakInterval === 0) {
+                        switchMode('longBreak');
+                    } else {
+                        switchMode('shortBreak');
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            startTimer();
         }
     }, 1000);
 }
